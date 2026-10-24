@@ -97,7 +97,6 @@ video {
     width: 100%;
     height: auto;
     display: block;
-    transform: scaleX(-1); /* ミラー表示 */
 }
 
 .video-overlay {
@@ -955,9 +954,8 @@ class HalloweenPumpkinCamera {
         const noseX = nose ? nose.x * this.overlay.width : face.x + face.width / 2;
         const noseY = nose ? nose.y * this.overlay.height : face.y + face.height / 2;
         
-        // ビデオはCSSでミラー表示されているため、X座標だけを反転して描画位置を決める
-        const centerScreenX = this.overlay.width - noseX;
-        const pumpkinX = centerScreenX - pumpkinWidth / 2;
+        // 表示はミラー反転しないので、正規化座標から求めたCanvas座標をそのまま使う
+        const pumpkinX = noseX - pumpkinWidth / 2;
         const pumpkinY = noseY - pumpkinHeight / 2;
         
         // カボチャ絵の中心を鼻の位置に置いて描画
@@ -973,7 +971,7 @@ class HalloweenPumpkinCamera {
         // スクリーンショット用Canvasに現在のフレームを描画
         this.screenshotCtx.save();
         
-        // ビデオを描画（ミラー反転なし - CSSでミラー表示されているため）
+        // ビデオを描画（ミラー反転なし）
         this.screenshotCtx.drawImage(this.video, 0, 0, this.video.videoWidth, this.video.videoHeight);
         
         // カボチャを描画
@@ -1000,7 +998,7 @@ class HalloweenPumpkinCamera {
         const pumpkinWidth = face.width * this.pumpkinSize;
         const pumpkinHeight = (pumpkinImg.height / pumpkinImg.width) * pumpkinWidth;
         
-        // 鼻の位置（スクリーンショットはミラー反転しないので正規化座標をそのまま使う）
+        // 鼻の位置（正規化座標をそのまま使う - 画面表示と同じ座標）
         const nose = face.landmarks ? face.landmarks[NOSE_TIP_INDEX] : null;
         const noseX = nose ? nose.x * this.screenshotCanvas.width : face.x + face.width / 2;
         const noseY = nose ? nose.y * this.screenshotCanvas.height : face.y + face.height / 2;
