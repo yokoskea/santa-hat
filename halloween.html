@@ -97,7 +97,7 @@ video {
     width: 100%;
     height: auto;
     display: block;
-    transform: scaleX(-1); /* ミラー表示 */
+    transform: scaleX(1);   /* ミラー表示 *の時は　-1 とする/
 }
 
 .video-overlay {
@@ -688,7 +688,7 @@ class HalloweenPumpkinCamera {
                 outputFaceBlendshapes: false,
                 outputFacialTransformationMatrixes: false,
                 runningMode: "VIDEO",
-                numFaces: 10 // 最大4つの顔を検出
+                numFaces: 10 // 最大10つの顔を検出
             });
             
             console.log('MediaPipe Face Landmarker初期化完了');
