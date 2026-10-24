@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ハロウィンカボチャカメラ - 単一ファイル版</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+/* リセットと基本スタイル */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: linear-gradient(135deg, #2b1055 0%, #1a0b2e 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    padding: 30px;
+}
+
+/* ヘッダー */
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #ff7514;
+}
+
+header h1 {
+    color: #2c3e50;
+    font-size: 2.8rem;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* 🎃 の絵文字とFont Awesomeアイコンの色（ハロウィン仕様） */
+header h1 i,
+header h1 .pumpkin-icon {
+    color: #ff7514;
+    font-size: 3rem;
+}
+
+.subtitle {
+    color: #7f8c8d;
+    font-size: 1.2rem;
+    font-weight: 300;
+}
+
+/* メインコンテンツ（単一カラム：使い方カードは操作ボタンの下に表示） */
+.app-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+@media (max-width: 1024px) {
+    .app-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* カメラセクション */
+.camera-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.video-container {
+    position: relative;
+    width: 100%;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    background: #000;
+}
+
+video {
+    width: 100%;
+    height: auto;
+    display: block;
+    transform: scaleX(-1); /* ミラー表示 */
+}
+
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+#overlay {
+    width: 100%;
+    height: 100%;
+}
+
+.controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* ボタン */
+.btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    min-width: 160px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #ff8c1a 0%, #ff7514 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #ff7514 0%, #d95f05 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 7px 15px rgba(255, 117, 20, 0.4);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #7f8c8d 0%, #636e72 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 7px 15px rgba(127, 140, 141, 0.4);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    color: white;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #27ae60 0%, #219653 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 7px 15px rgba(46, 204, 113, 0.4);
+}
+
+.btn-info {
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+    color: white;
+}
+
+.btn-info:hover {
+    background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 7px 15px rgba(155, 89, 182, 0.4);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* 設定セクション */
+.settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e0e0e0;
+}
+
+.card h3 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f1f1f1;
+}
+
+/* 設定グループ */
+.setting-group {
+    margin-bottom: 25px;
+}
+
+.setting-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #34495e;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* カボチャオプション */
+.pumpkin-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.pumpkin-option {
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.pumpkin-option:hover {
+    border-color: #ff7514;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(255, 117, 20, 0.2);
+}
+
+.pumpkin-option.active {
+    border-color: #6a0dad;
+    background-color: rgba(106, 13, 173, 0.05);
+}
+
+.pumpkin-option img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+}
+
+.pumpkin-option i {
+    font-size: 2.5rem;
+    color: #7f8c8d;
+}
+
+.pumpkin-option span {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* フォーム要素 */
+.form-select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 1rem;
+    background-color: white;
+    color: #333;
+    transition: border-color 0.3s;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+.slider {
+    width: 100%;
+    height: 10px;
+    border-radius: 5px;
+    background: #ddd;
+    outline: none;
+    margin: 15px 0;
+}
+
+.slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #ff7514;
+    cursor: pointer;
+}
+
+#pumpkinSizeValue {
+    display: inline-block;
+    margin-left: 15px;
+    font-weight: 600;
+    color: #ff7514;
+    min-width: 50px;
+}
+
+/* 統計 */
+.stats {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 2px solid #f1f1f1;
+}
+
+.stats h4 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 8px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-item span:first-child {
+    color: #7f8c8d;
+}
+
+.stat-item span:last-child {
+    font-weight: 700;
+    color: #2c3e50;
+    font-size: 1.2rem;
+}
+
+/* 使い方 */
+.instructions ol {
+    margin-left: 20px;
+    margin-bottom: 15px;
+}
+
+.instructions li {
+    margin-bottom: 10px;
+    color: #555;
+}
+
+.note {
+    background-color: #fff9e6;
+    border-left: 4px solid #f1c40f;
+    padding: 15px;
+    border-radius: 0 8px 8px 0;
+    margin-top: 15px;
+    color: #7d6608;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.note i {
+    color: #f1c40f;
+    margin-top: 2px;
+}
+
+/* フッター */
+footer {
+    text-align: center;
+    padding-top: 25px;
+    border-top: 2px solid #eee;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+.tech-info {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: #95a5a6;
+}
+
+/* レスポンシブ調整 */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    header h1 {
+        font-size: 2rem;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn {
+        min-width: 140px;
+        padding: 10px 20px;
+    }
+    
+    .pumpkin-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* アニメーション */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse {
+    animation: pulse 0.5s ease-in-out;
+}
+
+/* 検出ボックス */
+.face-box {
+    position: absolute;
+    border: 3px solid #ff7514;
+    border-radius: 10px;
+    background-color: rgba(255, 117, 20, 0.1);
+    pointer-events: none;
+}
+
+.face-label {
+    position: absolute;
+    top: -30px;
+    left: 0;
+    background-color: #ff7514;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><span class="pumpkin-icon">🎃</span> ハロウィンカボチャカメラ</h1>
+            <p class="subtitle">カメラ開始をクリックして誰かの顔を映してね！</p>
+        </header>
+
+        <main>
+            <div class="app-container">
+                <div class="camera-section">
+                    <div class="video-container">
+                        <video id="video" width="640" height="480" autoplay muted playsinline></video>
+                        <div class="video-overlay">
+                            <canvas id="overlay"></canvas>
+                        </div>
+                    </div>
+                    <div class="controls">
+                        <button id="startBtn" class="btn btn-primary">
+                            <i class="fas fa-play"></i> カメラ開始
+                        </button>
+                        <button id="stopBtn" class="btn btn-secondary" disabled>
+                            <i class="fas fa-stop"></i> カメラ停止
+                        </button>
+                        <button id="switchCameraBtn" class="btn btn-info" disabled>
+                            <i class="fas fa-camera-retro"></i> カメラ切替
+                        </button>
+                        <button id="screenshotBtn" class="btn btn-success" disabled>
+                            <i class="fas fa-camera"></i> スクリーンショット
+                        </button>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="instructions card">
+                        <h3><i class="fas fa-info-circle"></i> 使い方</h3>
+                        <ol>
+                            <li>「カメラ開始」ボタンをクリックしてカメラへのアクセスを許可</li>
+                            <li>顔が自動的に検出され、カボチャの絵が鼻の位置に重ねられます</li>
+                            <li>「カボチャサイズ」スライダーで大きさをリアルタイムに調整できます</li>
+                            <li>「スクリーンショット」で画像を保存</li>
+                            <li>「カメラ停止」で処理を終了</li>
+                        </ol>
+                        <p class="note"><i class="fas fa-lightbulb"></i> ヒント: 明るい環境で正面を向くと検出精度が向上します</p>
+                        
+                        <!-- カボチャサイズの調整（顔バウンドボックス×倍率） -->
+                        <div class="setting-group">
+                            <label for="pumpkinSize"><i class="fas fa-expand"></i> カボチャサイズ（顔バウンドボックス×倍率）<span id="pumpkinSizeValue">2.50</span></label>
+                            <input type="range" id="pumpkinSize" class="slider" min="0.5" max="3.0" step="0.05" value="2.5">
+                        </div>
+
+                        <div class="stats">
+                            <h4><i class="fas fa-chart-bar"></i> 統計</h4>
+                            <div class="stat-item">
+                                <span>検出された顔:</span>
+                                <span id="faceCount">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>FPS:</span>
+                                <span id="fps">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>© 2026 ハロウィンカボチャカメラ - サンタの帽子カメラ（index.html）ベース</p>
+            <p class="tech-info">技術: HTML5, CSS3, JavaScript, MediaPipe Face Landmarker, Canvas API</p>
+        </footer>
+    </div>
+
+    <!-- スクリーンショット用の隠しCanvas -->
+    <canvas id="screenshotCanvas" style="display: none;"></canvas>
+
+    <!-- MediaPipe Tasks Vision -->
+    <script type="module">
+        // MediaPipe Tasks VisionをESモジュールとしてインポート
+        import { FaceLandmarker, FilesetResolver } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/vision_bundle.mjs';
+        
+        // グローバルに公開
+        window.FaceLandmarker = FaceLandmarker;
+        window.FilesetResolver = FilesetResolver;
+        console.log('MediaPipe Tasks Vision 読み込み完了');
+    </script>
+    
+    <!-- カメラユーティリティ（必要に応じて） -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    
+    <!-- アプリケーションスクリプト -->
+    <script>
+// ハロウィンカボチャカメラ - メインアプリケーション（MediaPipe Face Landmarker版）
+
+// MediaPipe Face Landmarkerのランドマーク番号（鼻の先）: カボチャ絵の中心をこの点に置く
+const NOSE_TIP_INDEX = 1;
+const PUMPKIN_DATA_URL = 'data:image/png;base64,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';
+
+class HalloweenPumpkinCamera {
+    constructor() {
+        // DOM要素
+        this.video = document.getElementById('video');
+        this.overlay = document.getElementById('overlay');
+        this.startBtn = document.getElementById('startBtn');
+        this.stopBtn = document.getElementById('stopBtn');
+        this.switchCameraBtn = document.getElementById('switchCameraBtn');
+        this.screenshotBtn = document.getElementById('screenshotBtn');
+        this.faceCountElement = document.getElementById('faceCount');
+        this.fpsElement = document.getElementById('fps');
+        this.pumpkinSizeElement = document.getElementById('pumpkinSize');
+        this.pumpkinSizeValueElement = document.getElementById('pumpkinSizeValue');
+        
+        // アプリケーション状態
+        this.isRunning = false;
+        this.cameraMode = 'user'; // 'user' = 前面カメラ, 'environment' = 背面カメラ
+        this.pumpkinSize = 2.5; // カボチャの大きさ = 顔バウンドボックス×倍率（スライダーで実行中に変更可能）
+        this.showFaceBox = false; // 顔バウンドボックスを一緒に表示するデバッグフラグ（trueでON）
+        this.pumpkinImage = null; // カボチャ画像（Halloween1.png）
+        this.faces = [];
+        this.lastTimestamp = 0;
+        this.frameCount = 0;
+        this.fps = 0;
+        this.faceLandmarker = null;
+        this.lastVideoTime = -1;
+        this.animationFrameId = null;
+        
+        // Canvasコンテキスト
+        this.overlayCtx = this.overlay.getContext('2d');
+        this.screenshotCanvas = document.getElementById('screenshotCanvas');
+        this.screenshotCtx = this.screenshotCanvas.getContext('2d');
+        
+        // 初期化
+        this.init();
+    }
+    
+    async init() {
+        console.log('ハロウィンカボチャカメラを初期化中... (MediaPipe Face Landmarker版)');
+        
+        // イベントリスナーの設定
+        this.setupEventListeners();
+        
+        // カボチャ画像の読み込み
+        await this.loadPumpkinImage();
+        
+        // MediaPipe Face Landmarkerの初期化
+        await this.initFaceLandmarker();
+        
+        // UIの初期状態を設定
+        this.updateUI();
+        
+        console.log('初期化完了');
+    }
+    
+    setupEventListeners() {
+        // カメラ開始ボタン
+        this.startBtn.addEventListener('click', () => this.startCamera());
+        
+        // カメラ停止ボタン
+        this.stopBtn.addEventListener('click', () => this.stopCamera());
+        
+        // カメラ切り替えボタン
+        this.switchCameraBtn.addEventListener('click', () => this.switchCamera());
+        
+        // スクリーンショットボタン
+        this.screenshotBtn.addEventListener('click', () => this.takeScreenshot());
+        
+        // カボチャサイズスライダー（実行中に大きさをリアルタイムで変更）
+        this.pumpkinSizeElement.addEventListener('input', () => {
+            this.pumpkinSize = parseFloat(this.pumpkinSizeElement.value);
+            this.pumpkinSizeValueElement.textContent = this.pumpkinSize.toFixed(2);
+            console.log(`カボチャサイズを変更: ${this.pumpkinSize.toFixed(2)}`);
+        });
+    }
+    
+    async loadPumpkinImage() {
+        console.log('カボチャ画像（Halloween1.png）を読み込み中...');
+        
+        // file:// では crossOrigin を付けるとCORS要求として失敗する（ブラウザ仕様）ため条件付き
+        const useCors = window.location.protocol !== 'file:';
+        
+        // 第一選択: 同じフォルダの Halloween1.png（PNGを差し替えてリロードすれば反映される）
+        this.pumpkinImage = await this.loadImage('Halloween1.png', useCors);
+        if (this.pumpkinImage) {
+            console.log(`カボチャ画像を読み込み完了: ${this.pumpkinImage.width}x${this.pumpkinImage.height}`);
+            return;
+        }
+        
+        // フォールバック: HTMLに内蔵したbase64画像（file://でも確実に読み込める）
+        console.warn('Halloween1.png が読み込めなかったため、HTML内蔵のbase64画像を使用します');
+        this.pumpkinImage = await this.loadImage(PUMPKIN_DATA_URL, false);
+        if (this.pumpkinImage) {
+            console.log(`内蔵カボチャ画像を読み込み完了: ${this.pumpkinImage.width}x${this.pumpkinImage.height}`);
+        } else {
+            alert('カボチャ画像を読み込めませんでした。Halloween1.png をこのHTMLと同じフォルダに置いてください。');
+        }
+    }
+    
+    // 画像読み込みヘルパー（crossOrigin は src 代入前に設定しないと効かない）
+    loadImage(src, cors) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            if (cors) img.crossOrigin = 'anonymous';
+            img.onload = () => resolve(img);
+            img.onerror = () => {
+                console.error(`画像の読み込みに失敗しました: ${String(src).slice(0, 40)}`);
+                resolve(null);
+            };
+            img.src = src;
+        });
+    }
+    
+    async initFaceLandmarker() {
+        console.log('MediaPipe Face Landmarkerを初期化中...');
+        
+        try {
+            // FaceLandmarkerが利用可能か確認
+            if (typeof FaceLandmarker === 'undefined' || typeof FilesetResolver === 'undefined') {
+                throw new Error('MediaPipe Tasks Visionライブラリが読み込まれていません');
+            }
+            
+            // FilesetResolverでVision Tasksを初期化
+            const vision = await FilesetResolver.forVisionTasks(
+                "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm"
+            );
+            
+            // FaceLandmarkerの作成（高速モード削除、標準設定のみ）
+            this.faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+                baseOptions: {
+                    modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+                    delegate: "GPU"
+                },
+                outputFaceBlendshapes: false,
+                outputFacialTransformationMatrixes: false,
+                runningMode: "VIDEO",
+                numFaces: 10 // 最大4つの顔を検出
+            });
+            
+            console.log('MediaPipe Face Landmarker初期化完了');
+        } catch (error) {
+            console.error('MediaPipe Face Landmarkerの初期化に失敗しました:', error);
+            console.error('エラーの詳細:', error.message);
+            
+            // フォールバック：簡易な顔検出モード
+            console.log('簡易顔検出モードにフォールバックします');
+            this.faceLandmarker = null;
+            alert('MediaPipe Face Landmarkerの初期化に失敗しました。簡易モードで続行します。');
+        }
+    }
+    
+    async startCamera() {
+        if (this.isRunning) return;
+        
+        console.log('カメラを起動中... (モード: ' + this.cameraMode + ')');
+        
+        try {
+            // カメラストリームの取得（現在のカメラモードを使用）
+            const constraints = {
+                video: {
+                    width: { ideal: 640 },
+                    height: { ideal: 480 },
+                    facingMode: this.cameraMode
+                },
+                audio: false
+            };
+            
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            
+            this.video.srcObject = stream;
+            this.isRunning = true;
+            
+            // オーバーレイCanvasのサイズをビデオに合わせる
+            this.video.onloadedmetadata = () => {
+                this.overlay.width = this.video.videoWidth;
+                this.overlay.height = this.video.videoHeight;
+                this.screenshotCanvas.width = this.video.videoWidth;
+                this.screenshotCanvas.height = this.video.videoHeight;
+                
+                // 処理ループを開始
+                this.processFrame();
+            };
+            
+            // UIを更新
+            this.updateUI();
+            console.log('カメラ起動完了 (モード: ' + this.cameraMode + ')');
+            
+        } catch (error) {
+            console.error('カメラの起動に失敗しました:', error);
+            alert('カメラへのアクセスに失敗しました。カメラが接続されているか確認してください。\nエラー: ' + error.message);
+        }
+    }
+    
+    stopCamera() {
+        if (!this.isRunning) return;
+        
+        console.log('カメラを停止中...');
+        
+        // アニメーションフレームをキャンセル
+        if (this.animationFrameId) {
+            cancelAnimationFrame(this.animationFrameId);
+            this.animationFrameId = null;
+        }
+        
+        // ストリームを停止
+        const stream = this.video.srcObject;
+        if (stream) {
+            const tracks = stream.getTracks();
+            tracks.forEach(track => track.stop());
+            this.video.srcObject = null;
+        }
+        
+        this.isRunning = false;
+        this.faces = [];
+        this.lastVideoTime = -1;
+        this.lastTimestamp = 0;
+        this.frameCount = 0;
+        
+        // オーバーレイをクリア
+        this.overlayCtx.clearRect(0, 0, this.overlay.width, this.overlay.height);
+        
+        // UIを更新
+        this.updateUI();
+        console.log('カメラ停止完了');
+    }
+    
+    // カメラ切り替え
+    async switchCamera() {
+        if (!this.isRunning) {
+            // カメラが起動していない場合は単にモードを切り替える
+            this.cameraMode = this.cameraMode === 'user' ? 'environment' : 'user';
+            console.log('カメラモードを切り替え: ' + this.cameraMode);
+            this.updateUI();
+            return;
+        }
+        
+        console.log('カメラを切り替え中... (現在のモード: ' + this.cameraMode + ')');
+        
+        // 現在のストリームを停止
+        const wasRunning = this.isRunning;
+        if (wasRunning) {
+            this.stopCamera();
+        }
+        
+        // カメラモードを切り替え
+        this.cameraMode = this.cameraMode === 'user' ? 'environment' : 'user';
+        console.log('カメラモードを切り替え: ' + this.cameraMode);
+        
+        // カメラを再起動
+        if (wasRunning) {
+            await this.startCamera();
+        }
+        
+        this.updateUI();
+    }
+    
+    // カボチャサイズ設定メソッド（スライダーの表示も同時に更新）
+    setPumpkinSize(size) {
+        this.pumpkinSize = size;
+        this.pumpkinSizeElement.value = size;
+        this.pumpkinSizeValueElement.textContent = size.toFixed(2);
+        console.log(`カボチャサイズを設定: ${size.toFixed(2)}`);
+    }
+    
+    async processFrame() {
+        if (!this.isRunning) return;
+        
+        // FPS計算
+        const now = performance.now();
+        this.frameCount++;
+        
+        if (this.lastTimestamp && now - this.lastTimestamp >= 1000) {
+            this.fps = Math.round((this.frameCount * 1000) / (now - this.lastTimestamp));
+            this.fpsElement.textContent = this.fps;
+            this.frameCount = 0;
+            this.lastTimestamp = now;
+        } else if (!this.lastTimestamp) {
+            this.lastTimestamp = now;
+        }
+        
+        // 顔検出（約30fpsに制限）
+        const currentTime = performance.now();
+        if (currentTime - this.lastVideoTime >= 33) { // ~30fps
+            this.lastVideoTime = currentTime;
+            
+            if (this.faceLandmarker) {
+                await this.detectFaces(currentTime);
+            } else {
+                // 簡易モード：固定位置にカボチャを表示（デモ用）
+                this.faces = [{
+                    x: this.overlay.width * 0.3,
+                    y: this.overlay.height * 0.3,
+                    width: this.overlay.width * 0.4,
+                    height: this.overlay.height * 0.4
+                }];
+                this.faceCountElement.textContent = '1';
+            }
+            
+            // カボチャを描画
+            this.drawPumpkin();
+        }
+        
+        // 次のフレームを処理
+        this.animationFrameId = requestAnimationFrame(() => this.processFrame());
+    }
+    
+    async detectFaces(currentTime) {
+        if (!this.faceLandmarker || !this.isRunning) return;
+        
+        try {
+            // 顔検出を実行
+            const results = this.faceLandmarker.detectForVideo(this.video, currentTime);
+            
+            if (results.faceLandmarks && results.faceLandmarks.length > 0) {
+                // 検出結果を処理
+                this.faces = results.faceLandmarks.map(landmarks => {
+                    // 顔のバウンディングボックスを計算
+                    const bounds = this.calculateFaceBounds(landmarks);
+                    return {
+                        x: bounds.x,
+                        y: bounds.y,
+                        width: bounds.width,
+                        height: bounds.height,
+                        landmarks: landmarks
+                    };
+                });
+                
+                // 顔の数を更新
+                this.faceCountElement.textContent = this.faces.length;
+            } else {
+                this.faces = [];
+                this.faceCountElement.textContent = '0';
+            }
+        } catch (error) {
+            console.error('顔検出エラー:', error);
+            this.faces = [];
+        }
+    }
+    
+    calculateFaceBounds(landmarks) {
+        let minX = Infinity, minY = Infinity;
+        let maxX = -Infinity, maxY = -Infinity;
+        
+        for (const landmark of landmarks) {
+            const x = landmark.x * this.overlay.width;
+            const y = landmark.y * this.overlay.height;
+            
+            minX = Math.min(minX, x);
+            minY = Math.min(minY, y);
+            maxX = Math.max(maxX, x);
+            maxY = Math.max(maxY, y);
+        }
+        
+        // バウンディングボックスを少し拡大
+        const padding = 10;
+        return {
+            x: minX - padding,
+            y: minY - padding,
+            width: (maxX - minX) + padding * 2,
+            height: (maxY - minY) + padding * 2
+        };
+    }
+    
+    drawFaceBoxes() {
+        // 顔のバウンディングボックスを描画（オーバーレイは呼び出し側でクリア済み）
+        this.overlayCtx.strokeStyle = '#ff7514';
+        this.overlayCtx.lineWidth = 2;
+        this.overlayCtx.fillStyle = 'rgba(255, 117, 20, 0.1)';
+        
+        for (const face of this.faces) {
+            this.overlayCtx.strokeRect(face.x, face.y, face.width, face.height);
+            this.overlayCtx.fillRect(face.x, face.y, face.width, face.height);
+        }
+    }
+    
+    drawPumpkin() {
+        // オーバーレイをクリア（残像防止）
+        this.overlayCtx.clearRect(0, 0, this.overlay.width, this.overlay.height);
+        
+        // デバッグフラグがONのときは顔バウンドボックスも表示
+        if (this.showFaceBox) {
+            this.drawFaceBoxes();
+        }
+        
+        // 各顔にカボチャを描画
+        this.faces.forEach(face => {
+            this.drawPumpkinOnFace(face);
+        });
+    }
+    
+    drawPumpkinOnFace(face) {
+        const pumpkinImg = this.pumpkinImage;
+        if (!pumpkinImg) return;
+        
+        // 大きさを計算：顔バウンドボックスの幅 × 倍率、高さは画像のアスペクト比（721x487）に合わせる
+        const pumpkinWidth = face.width * this.pumpkinSize;
+        const pumpkinHeight = (pumpkinImg.height / pumpkinImg.width) * pumpkinWidth;
+        
+        // 鼻の位置を取得（ランドマークは映像に対する正規化座標 → Canvas座標へ変換）
+        const nose = face.landmarks ? face.landmarks[NOSE_TIP_INDEX] : null;
+        const noseX = nose ? nose.x * this.overlay.width : face.x + face.width / 2;
+        const noseY = nose ? nose.y * this.overlay.height : face.y + face.height / 2;
+        
+        // ビデオはCSSでミラー表示されているため、X座標だけを反転して描画位置を決める
+        const centerScreenX = this.overlay.width - noseX;
+        const pumpkinX = centerScreenX - pumpkinWidth / 2;
+        const pumpkinY = noseY - pumpkinHeight / 2;
+        
+        // カボチャ絵の中心を鼻の位置に置いて描画
+        this.overlayCtx.drawImage(pumpkinImg, pumpkinX, pumpkinY, pumpkinWidth, pumpkinHeight);
+    }
+    
+    takeScreenshot() {
+        if (!this.isRunning || this.faces.length === 0) {
+            alert('カメラが起動中で、顔が検出されている状態でスクリーンショットを撮影してください。');
+            return;
+        }
+        
+        // スクリーンショット用Canvasに現在のフレームを描画
+        this.screenshotCtx.save();
+        
+        // ビデオを描画（ミラー反転なし - CSSでミラー表示されているため）
+        this.screenshotCtx.drawImage(this.video, 0, 0, this.video.videoWidth, this.video.videoHeight);
+        
+        // カボチャを描画
+        this.faces.forEach(face => {
+            this.drawPumpkinOnScreenshot(face);
+        });
+        
+        this.screenshotCtx.restore();
+        
+        // 画像としてダウンロード
+        const link = document.createElement('a');
+        link.download = `halloween_pumpkin_${new Date().getTime()}.png`;
+        link.href = this.screenshotCanvas.toDataURL('image/png');
+        link.click();
+        
+        console.log('スクリーンショットを保存しました');
+    }
+    
+    drawPumpkinOnScreenshot(face) {
+        const pumpkinImg = this.pumpkinImage;
+        if (!pumpkinImg) return;
+        
+        // 大きさは画面表示と同じ式（顔バウンドボックスの幅 × 倍率）
+        const pumpkinWidth = face.width * this.pumpkinSize;
+        const pumpkinHeight = (pumpkinImg.height / pumpkinImg.width) * pumpkinWidth;
+        
+        // 鼻の位置（スクリーンショットはミラー反転しないので正規化座標をそのまま使う）
+        const nose = face.landmarks ? face.landmarks[NOSE_TIP_INDEX] : null;
+        const noseX = nose ? nose.x * this.screenshotCanvas.width : face.x + face.width / 2;
+        const noseY = nose ? nose.y * this.screenshotCanvas.height : face.y + face.height / 2;
+        
+        // カボチャ絵の中心を鼻の位置において描画（ミラー補正なし）
+        const pumpkinX = noseX - pumpkinWidth / 2;
+        const pumpkinY = noseY - pumpkinHeight / 2;
+        
+        this.screenshotCtx.drawImage(pumpkinImg, pumpkinX, pumpkinY, pumpkinWidth, pumpkinHeight);
+    }
+    
+    updateUI() {
+        // ボタンの状態を更新
+        this.startBtn.disabled = this.isRunning;
+        this.stopBtn.disabled = !this.isRunning;
+        this.switchCameraBtn.disabled = !this.isRunning;
+        this.screenshotBtn.disabled = !this.isRunning;
+        
+        // ボタンのテキストを更新
+        this.startBtn.innerHTML = this.isRunning 
+            ? '<i class="fas fa-play"></i> 実行中' 
+            : '<i class="fas fa-play"></i> カメラ開始';
+        
+        this.stopBtn.innerHTML = this.isRunning
+            ? '<i class="fas fa-stop"></i> カメラ停止'
+            : '<i class="fas fa-stop"></i> 停止中';
+        
+        // カメラ切り替えボタンのテキストを更新
+        const cameraModeText = this.cameraMode === 'user' ? '前面カメラ' : '背面カメラ';
+        this.switchCameraBtn.innerHTML = this.isRunning
+            ? `<i class="fas fa-camera-retro"></i> カメラ切替 (${cameraModeText})`
+            : `<i class="fas fa-camera-retro"></i> カメラ切替 (${cameraModeText})`;
+    }
+}
+
+// アプリケーションの起動
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMが読み込まれました。アプリケーションを起動します。');
+    
+    // アプリケーションインスタンスを作成
+    window.app = new HalloweenPumpkinCamera();
+    
+    console.log('ハロウィンカボチャカメラアプリケーションが起動しました。(MediaPipe Face Landmarker版)');
+    
+    // 開発者向け情報
+    console.log('開発者向けコマンド:');
+    console.log('- app.startCamera(): カメラを開始');
+    console.log('- app.stopCamera(): カメラを停止');
+    console.log('- app.takeScreenshot(): スクリーンショットを撮影');
+    console.log('- app.setPumpkinSize(2.0): カボチャの大きさ（顔バウンドボックス×倍率）を設定');
+    console.log('- app.showFaceBox = true: 顔バウンドボックスも表示（デバッグ）');
+});
+    </script>
+</body>
+</html>
