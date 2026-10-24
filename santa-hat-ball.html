@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>サンタの帽子カメラ - 3D球面版</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+/* リセットと基本スタイル */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: linear-gradient(135deg, #1a2a3a 0%, #2c3e50 100%);
+    min-height: 100vh;
+    padding: 20px;
+    overflow: hidden;
+}
+
+.container {
+    max-width: 1400px; /* 1400px * 1.5 = 2100px */
+    margin: 0 auto;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 40px);
+}
+
+/* ヘッダー */
+header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #e74c3c;
+    flex-shrink: 0;
+}
+
+header h1 {
+    color: #2c3e50;
+    font-size: 2.8rem;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+header h1 i {
+    color: #e74c3c;
+}
+
+.subtitle {
+    color: #7f8c8d;
+    font-size: 1.2rem;
+    font-weight: 300;
+    margin-bottom: 15px;
+}
+
+.header-controls {
+    margin-top: 15px;
+}
+
+.header-controls .btn {
+    min-width: auto;
+    padding: 10px 20px;
+    font-size: 1rem;
+}
+
+/* メインコンテンツ */
+.app-container {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 30px;
+    margin-bottom: 20px;
+    flex: 1;
+    min-height: 0;
+    height: 70vh; /* 横長レイアウト用に高さを設定 */
+}
+
+@media (max-width: 1024px) {
+    .app-container {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+}
+
+/* 設定パネル非表示時のレイアウト */
+.app-container.panel-hidden {
+    grid-template-columns: 1fr;
+}
+
+.app-container.panel-hidden .settings-section {
+    display: none;
+}
+
+/* 3D表示セクション */
+.three-section {
+    position: relative;
+    width: 100%;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    background: #000;
+    min-height: 500px;
+}
+
+#three-container {
+    width: 100%;
+    height: 100%;
+}
+
+/* 設定セクション */
+.settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+}
+
+.card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e0e0e0;
+}
+
+.card h3 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f1f1f1;
+}
+
+/* ボタン */
+.controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    min-width: 160px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2980b9 0%, #1c5a7a 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 7px 15px rgba(41, 128, 185, 0.4);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #7f8c8d 0%, #636e72 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 7px 15px rgba(127, 140, 141, 0.4);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    color: white;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #27ae60 0%, #219653 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 7px 15px rgba(46, 204, 113, 0.4);
+}
+
+.btn-info {
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+    color: white;
+}
+
+.btn-info:hover {
+    background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 7px 15px rgba(155, 89, 182, 0.4);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* 帽子オプション */
+.hat-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.hat-option {
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.hat-option:hover {
+    border-color: #3498db;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+}
+
+.hat-option.active {
+    border-color: #e74c3c;
+    background-color: rgba(231, 76, 60, 0.05);
+}
+
+.hat-option img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+}
+
+.hat-option i {
+    font-size: 2.5rem;
+    color: #7f8c8d;
+}
+
+.hat-option span {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* フォーム要素 */
+.form-select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 1rem;
+    background-color: white;
+    color: #333;
+    transition: border-color 0.3s;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+.slider {
+    width: 100%;
+    height: 10px;
+    border-radius: 5px;
+    background: #ddd;
+    outline: none;
+    margin: 15px 0;
+}
+
+.slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #e74c3c;
+    cursor: pointer;
+}
+
+#hatSizeValue {
+    display: inline-block;
+    margin-left: 15px;
+    font-weight: 600;
+    color: #e74c3c;
+    min-width: 50px;
+}
+
+/* 統計 */
+.stats {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 2px solid #f1f1f1;
+}
+
+.stats h4 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 8px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-item span:first-child {
+    color: #7f8c8d;
+}
+
+.stat-item span:last-child {
+    font-weight: 700;
+    color: #2c3e50;
+    font-size: 1.2rem;
+}
+
+/* 使い方 */
+.instructions ol {
+    margin-left: 20px;
+    margin-bottom: 15px;
+}
+
+.instructions li {
+    margin-bottom: 10px;
+    color: #555;
+}
+
+.note {
+    background-color: #fff9e6;
+    border-left: 4px solid #f1c40f;
+    padding: 15px;
+    border-radius: 0 8px 8px 0;
+    margin-top: 15px;
+    color: #7d6608;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.note i {
+    color: #f1c40f;
+    margin-top: 2px;
+}
+
+/* フッター */
+footer {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 2px solid #eee;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.tech-info {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: #95a5a6;
+}
+
+/* レスポンシブ調整 */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    header h1 {
+        font-size: 2rem;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn {
+        min-width: 140px;
+        padding: 10px 20px;
+    }
+    
+    .hat-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* アニメーション */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse {
+    animation: pulse 0.5s ease-in-out;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h4><i class="fas fa-santa-hat"></i> サンタの帽子カメラ</h4>
+            <div class="header-controls">
+                <button id="togglePanelBtn" class="btn btn-info">
+                    <i class="fas fa-cog"></i> 設定パネル表示/非表示
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <div class="app-container">
+                <div class="three-section">
+                    <div id="three-container"></div>
+                </div>
+
+                <div class="settings-section" id="settingsPanel">
+                    <div class="instructions card">
+                        <h3><i class="fas fa-info-circle"></i> 使い方</h3>
+                        <ol>
+                            <li>「カメラ開始」ボタンをクリックしてカメラへのアクセスを許可</li>
+                            <li>顔が自動的に検出され、3D球面上に帽子が被せられます</li>
+                            <li>マウスでドラッグして球面を回転、スクロールでズーム</li>
+                            <li>「スクリーンショット」で画像を保存</li>
+                            <li>「カメラ停止」で処理を終了</li>
+                        </ol>
+                        <p class="note"><i class="fas fa-lightbulb"></i> ヒント: 明るい環境で正面を向くと検出精度が向上します</p>
+                        
+                        <div class="stats">
+                            <h4><i class="fas fa-chart-bar"></i> 統計</h4>
+                            <div class="stat-item">
+                                <span>検出された顔:</span>
+                                <span id="faceCount">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>FPS:</span>
+                                <span id="fps">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>帽子:</span>
+                                <span id="hatType">1</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-santa-hat"></i> 帽子の選択</h3>
+                        <div class="hat-options">
+                            <div class="hat-option active" data-hat="1">
+                                <img src="img/hats/hat_1.png" alt="帽子1">
+                                <span>帽子 1</span>
+                            </div>
+                            <div class="hat-option" data-hat="2">
+                                <img src="img/hats/hat_2.png" alt="帽子2">
+                                <span>帽子 2</span>
+                            </div>
+                            <div class="hat-option" data-hat="3">
+                                <img src="img/hats/hat_3.png" alt="帽子3">
+                                <span>帽子 3</span>
+                            </div>
+                            <div class="hat-option" data-hat="random">
+                                <i class="fas fa-random"></i>
+                                <span>ランダム</span>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <label for="hatSize">
+                                <i class="fas fa-expand-alt"></i> 帽子のサイズ: <span id="hatSizeValue">100%</span>
+                            </label>
+                            <input type="range" id="hatSize" class="slider" min="50" max="200" value="100">
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <button id="startBtn" class="btn btn-primary">
+                            <i class="fas fa-play"></i> カメラ開始
+                        </button>
+                        <button id="stopBtn" class="btn btn-secondary" disabled>
+                            <i class="fas fa-stop"></i> カメラ停止
+                        </button>
+                        <button id="switchCameraBtn" class="btn btn-info" disabled>
+                            <i class="fas fa-camera-retro"></i> カメラ切替
+                        </button>
+                        <button id="screenshotBtn" class="btn btn-success" disabled>
+                            <i class="fas fa-camera"></i> スクリーンショット
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>© 2023 サンタの帽子カメラ - 3D球面版</p>
+            <p class="tech-info">技術: HTML5, CSS3, JavaScript, MediaPipe Face Landmarker, Three.js</p>
+        </footer>
+    </div>
+
+    <!-- 非表示のビデオ要素 -->
+    <video id="video" style="display: none;" autoplay muted playsinline></video>
+    
+    <!-- スクリーンショット用の隠しCanvas -->
+    <canvas id="screenshotCanvas" style="display: none;"></canvas>
+
+    <!-- Three.js インポートマップ (cam-seg-ball.htmlを参考) -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+        }
+    }
+    </script>
+
+    <!-- MediaPipe Tasks Vision -->
+    <script type="module">
+        // MediaPipe Tasks VisionをESモジュールとしてインポート
+        import { FaceLandmarker, FilesetResolver } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/vision_bundle.mjs';
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        
+        // グローバルに公開
+        window.FaceLandmarker = FaceLandmarker;
+        window.FilesetResolver = FilesetResolver;
+        console.log('MediaPipe Tasks Vision 読み込み完了');
+        
+        // クリスマス帽子カメラ - 3D球面版
+        class ChristmasHatBallCamera {
+            constructor() {
+                // DOM要素
+                this.video = document.getElementById('video');
+                this.startBtn = document.getElementById('startBtn');
+                this.stopBtn = document.getElementById('stopBtn');
+                this.switchCameraBtn = document.getElementById('switchCameraBtn');
+                this.screenshotBtn = document.getElementById('screenshotBtn');
+                this.togglePanelBtn = document.getElementById('togglePanelBtn');
+                this.settingsPanel = document.getElementById('settingsPanel');
+                this.faceCountElement = document.getElementById('faceCount');
+                this.fpsElement = document.getElementById('fps');
+                this.hatTypeElement = document.getElementById('hatType');
+                this.hatSizeSlider = document.getElementById('hatSize');
+                this.hatSizeValue = document.getElementById('hatSizeValue');
+                this.hatOptions = document.querySelectorAll('.hat-option');
+                
+                // 設定パネルの表示状態
+                this.isPanelVisible = true;
+                
+                // アプリケーション状態
+                this.isRunning = false;
+                this.cameraMode = 'user'; // 'user' = 前面カメラ, 'environment' = 背面カメラ
+                this.selectedHat = '1';
+                this.hatSize = 1.0;
+                this.hatImages = {};
+                this.faces = [];
+                this.lastTimestamp = 0;
+                this.frameCount = 0;
+                this.fps = 0;
+                this.faceLandmarker = null;
+                this.lastVideoTime = -1;
+                this.animationFrameId = null;
+                
+                // Three.js関連
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.controls = null;
+                this.spheres = []; // 球面上の平面メッシュ
+                this.hatMeshes = []; // 帽子のメッシュ
+                this.videoTexture = null;
+                this.compositeTexture = null;
+                this.compositeMaterial = null;
+                this.compositeCanvas = null;
+                this.compositeCtx = null;
+                
+                // スクリーンショット用
+                this.screenshotCanvas = document.getElementById('screenshotCanvas');
+                this.screenshotCtx = this.screenshotCanvas.getContext('2d');
+                
+                // 初期化
+                this.init();
+            }
+            
+            async init() {
+                console.log('クリスマス帽子カメラ3D球面版を初期化中...');
+                
+                // イベントリスナーの設定
+                this.setupEventListeners();
+                
+                // 帽子画像の読み込み
+                await this.loadHatImages();
+                
+                // Three.jsシーンの初期化
+                this.initThreeJS();
+                
+                // MediaPipe Face Landmarkerの初期化
+                await this.initFaceLandmarker();
+                
+                // UIの初期状態を設定
+                this.updateUI();
+                
+                console.log('初期化完了');
+            }
+            
+            setupEventListeners() {
+                // カメラ開始ボタン
+                this.startBtn.addEventListener('click', () => this.startCamera());
+                
+                // カメラ停止ボタン
+                this.stopBtn.addEventListener('click', () => this.stopCamera());
+                
+                // カメラ切り替えボタン
+                this.switchCameraBtn.addEventListener('click', () => this.switchCamera());
+                
+                // スクリーンショットボタン
+                this.screenshotBtn.addEventListener('click', () => this.takeScreenshot());
+                
+                // 設定パネルトグルボタン
+                this.togglePanelBtn.addEventListener('click', () => this.toggleSettingsPanel());
+                
+                // 帽子サイズスライダー
+                this.hatSizeSlider.addEventListener('input', (e) => {
+                    this.hatSize = parseInt(e.target.value) / 100;
+                    this.hatSizeValue.textContent = e.target.value + '%';
+                    this.updateHatMeshes();
+                });
+                
+                // 帽子選択オプション
+                this.hatOptions.forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        const hat = e.currentTarget.dataset.hat;
+                        this.selectHat(hat);
+                    });
+                });
+            }
+            
+            toggleSettingsPanel() {
+                this.isPanelVisible = !this.isPanelVisible;
+                const appContainer = document.querySelector('.app-container');
+                
+                if (this.isPanelVisible) {
+                    this.settingsPanel.style.display = 'flex';
+                    appContainer.classList.remove('panel-hidden');
+                    this.togglePanelBtn.innerHTML = '<i class="fas fa-cog"></i> 設定パネル非表示';
+                    this.togglePanelBtn.classList.remove('btn-secondary');
+                    this.togglePanelBtn.classList.add('btn-info');
+                } else {
+                    this.settingsPanel.style.display = 'none';
+                    appContainer.classList.add('panel-hidden');
+                    this.togglePanelBtn.innerHTML = '<i class="fas fa-cog"></i> 設定パネル表示';
+                    this.togglePanelBtn.classList.remove('btn-info');
+                    this.togglePanelBtn.classList.add('btn-secondary');
+                }
+                
+                // 3Dコンテナのリサイズをトリガー
+                this.onWindowResize();
+            }
+            
+            async loadHatImages() {
+                console.log('帽子画像を読み込み中...');
+                
+                const hatPromises = [1, 2, 3].map(num => {
+                    return new Promise((resolve, reject) => {
+                        const img = new Image();
+                        img.crossOrigin = 'anonymous';
+                        img.src = `img/hats/hat_${num}.png`;
+                        img.onload = () => {
+                            this.hatImages[num] = img;
+                            console.log(`帽子${num}を読み込み完了: ${img.width}x${img.height}`);
+                            resolve();
+                        };
+                        img.onerror = reject;
+                    });
+                });
+                
+                await Promise.all(hatPromises);
+                console.log('すべての帽子画像を読み込み完了');
+            }
+            
+            initThreeJS() {
+                console.log('Three.jsシーンを初期化中...');
+                
+                const container = document.getElementById('three-container');
+                
+                // シーン
+                this.scene = new THREE.Scene();
+                
+                // カメラ
+                this.camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+                this.camera.position.set(0, 0, 50);
+                
+                // レンダラー
+                this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                this.renderer.setSize(container.clientWidth, container.clientHeight);
+                this.renderer.setPixelRatio(window.devicePixelRatio);
+                container.appendChild(this.renderer.domElement);
+                
+                // コントロール
+                this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+                this.controls.enableDamping = true;
+                this.controls.dampingFactor = 0.05;
+                this.controls.autoRotate = true;
+                this.controls.autoRotateSpeed = 0.4;
+                this.controls.minDistance = 10;
+                this.controls.maxDistance = 100;
+                
+                // 球面上に配置する平面のパラメータ (cam-ball.htmlを参考)
+                const count = 32;
+                const radius = 20;
+                const planeGeometry = new THREE.PlaneGeometry(8, 6);
+                
+                // 合成用のテクスチャとマテリアル
+                this.compositeCanvas = document.createElement('canvas');
+                this.compositeCtx = this.compositeCanvas.getContext('2d');
+                this.compositeCanvas.width = 640;
+                this.compositeCanvas.height = 480;
+                
+                this.compositeTexture = new THREE.CanvasTexture(this.compositeCanvas);
+                this.compositeTexture.wrapS = THREE.RepeatWrapping;
+                this.compositeTexture.repeat.x = -1; // 左右反転
+                this.compositeTexture.colorSpace = THREE.SRGBColorSpace;
+                
+                this.compositeMaterial = new THREE.MeshBasicMaterial({ 
+                    map: this.compositeTexture,
+                    side: THREE.DoubleSide,
+                    transparent: true
+                });
+                
+                // 球面上に平面を配置
+                this.spheres = [];
+                for (let i = 0; i < count; i++) {
+                    // 球面座標の計算
+                    const phi = Math.acos(-1 + (2 * i) / count);
+                    const theta = Math.sqrt(count * Math.PI) * phi;
+                    
+                    const mesh = new THREE.Mesh(planeGeometry, this.compositeMaterial);
+                    
+                    // 球面座標に配置
+                    mesh.position.setFromSphericalCoords(radius, phi, theta);
+                    
+                    // 球体の中心から外側を向くように回転
+                    mesh.lookAt(0, 0, 0);
+                    
+                    this.scene.add(mesh);
+                    this.spheres.push(mesh);
+                }
+                
+                // 球体のワイヤーフレームを追加（視覚的な参考用）
+                const sphereGeometry = new THREE.SphereGeometry(radius, 16, 16);
+                const sphereMaterial = new THREE.MeshBasicMaterial({ 
+                    color: 0xffffff, 
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.3
+                });
+                const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+                this.scene.add(sphere);
+                
+                // 帽子用のメッシュ配列を初期化
+                this.hatMeshes = [];
+                
+                // ウィンドウリサイズ対応
+                window.addEventListener('resize', () => this.onWindowResize());
+                
+                // アニメーションループ開始
+                this.animate();
+            }
+            
+            onWindowResize() {
+                const container = document.getElementById('three-container');
+                this.camera.aspect = container.clientWidth / container.clientHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(container.clientWidth, container.clientHeight);
+            }
+            
+            animate() {
+                this.animationFrameId = requestAnimationFrame(() => this.animate());
+                
+                // FPS計算
+                const now = performance.now();
+                this.frameCount++;
+                
+                if (this.lastTimestamp && now - this.lastTimestamp >= 1000) {
+                    this.fps = Math.round((this.frameCount * 1000) / (now - this.lastTimestamp));
+                    this.fpsElement.textContent = this.fps;
+                    this.frameCount = 0;
+                    this.lastTimestamp = now;
+                } else if (!this.lastTimestamp) {
+                    this.lastTimestamp = now;
+                }
+                
+                // コントロール更新
+                this.controls.update();
+                
+                // レンダリング
+                this.renderer.render(this.scene, this.camera);
+            }
+            
+            async initFaceLandmarker() {
+                console.log('MediaPipe Face Landmarkerを初期化中...');
+                
+                try {
+                    // FaceLandmarkerが利用可能か確認
+                    if (typeof FaceLandmarker === 'undefined' || typeof FilesetResolver === 'undefined') {
+                        throw new Error('MediaPipe Tasks Visionライブラリが読み込まれていません');
+                    }
+                    
+                    // FilesetResolverでVision Tasksを初期化
+                    const vision = await FilesetResolver.forVisionTasks(
+                        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm"
+                    );
+                    
+                    // FaceLandmarkerの作成
+                    this.faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+                        baseOptions: {
+                            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+                            delegate: "GPU"
+                        },
+                        outputFaceBlendshapes: false,
+                        outputFacialTransformationMatrixes: false,
+                        runningMode: "VIDEO",
+                        numFaces: 4
+                    });
+                    
+                    console.log('MediaPipe Face Landmarker初期化完了');
+                } catch (error) {
+                    console.error('MediaPipe Face Landmarkerの初期化に失敗しました:', error);
+                    console.error('エラーの詳細:', error.message);
+                    
+                    // フォールバック：簡易な顔検出モード
+                    console.log('簡易顔検出モードにフォールバックします');
+                    this.faceLandmarker = null;
+                }
+            }
+            
+            async startCamera() {
+                if (this.isRunning) return;
+                
+                console.log('カメラを起動中... (モード: ' + this.cameraMode + ')');
+                
+                try {
+                    // カメラストリームの取得
+                    const constraints = {
+                        video: {
+                            width: { ideal: 640 },
+                            height: { ideal: 480 },
+                            facingMode: this.cameraMode
+                        },
+                        audio: false
+                    };
+                    
+                    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    
+                    this.video.srcObject = stream;
+                    this.isRunning = true;
+                    
+                    // ビデオの準備を待つ
+                    await new Promise((resolve) => {
+                        this.video.onloadedmetadata = () => {
+                            this.video.play();
+                            resolve();
+                        };
+                    });
+                    
+                    // 合成キャンバスのサイズをビデオに合わせる
+                    this.compositeCanvas.width = this.video.videoWidth;
+                    this.compositeCanvas.height = this.video.videoHeight;
+                    this.screenshotCanvas.width = this.video.videoWidth;
+                    this.screenshotCanvas.height = this.video.videoHeight;
+                    
+                    // ビデオテクスチャの作成
+                    this.videoTexture = new THREE.VideoTexture(this.video);
+                    this.videoTexture.colorSpace = THREE.SRGBColorSpace;
+                    
+                    // 処理ループを開始
+                    this.processFrame();
+                    
+                    // UIを更新
+                    this.updateUI();
+                    console.log('カメラ起動完了 (モード: ' + this.cameraMode + ')');
+                    
+                } catch (error) {
+                    console.error('カメラの起動に失敗しました:', error);
+                    alert('カメラへのアクセスに失敗しました。カメラが接続されているか確認してください。\\nエラー: ' + error.message);
+                }
+            }
+            
+            stopCamera() {
+                if (!this.isRunning) return;
+                
+                console.log('カメラを停止中...');
+                
+                // アニメーションフレームをキャンセル
+                if (this.animationFrameId) {
+                    cancelAnimationFrame(this.animationFrameId);
+                    this.animationFrameId = null;
+                }
+                
+                // ストリームを停止
+                const stream = this.video.srcObject;
+                if (stream) {
+                    const tracks = stream.getTracks();
+                    tracks.forEach(track => track.stop());
+                    this.video.srcObject = null;
+                }
+                
+                this.isRunning = false;
+                this.faces = [];
+                this.lastVideoTime = -1;
+                this.lastTimestamp = 0;
+                this.frameCount = 0;
+                
+                // 帽子メッシュをクリア
+                this.clearHatMeshes();
+                
+                // 合成キャンバスをクリア
+                this.compositeCtx.clearRect(0, 0, this.compositeCanvas.width, this.compositeCanvas.height);
+                this.compositeTexture.needsUpdate = true;
+                
+                // UIを更新
+                this.updateUI();
+                console.log('カメラ停止完了');
+            }
+            
+            async switchCamera() {
+                if (!this.isRunning) {
+                    // カメラが起動していない場合は単にモードを切り替える
+                    this.cameraMode = this.cameraMode === 'user' ? 'environment' : 'user';
+                    console.log('カメラモードを切り替え: ' + this.cameraMode);
+                    this.updateUI();
+                    return;
+                }
+                
+                console.log('カメラを切り替え中... (現在のモード: ' + this.cameraMode + ')');
+                
+                // 現在のストリームを停止
+                const wasRunning = this.isRunning;
+                if (wasRunning) {
+                    this.stopCamera();
+                }
+                
+                // カメラモードを切り替え
+                this.cameraMode = this.cameraMode === 'user' ? 'environment' : 'user';
+                console.log('カメラモードを切り替え: ' + this.cameraMode);
+                
+                // カメラを再起動
+                if (wasRunning) {
+                    await this.startCamera();
+                }
+                
+                this.updateUI();
+            }
+            
+            selectHat(hat) {
+                this.selectedHat = hat;
+                this.hatTypeElement.textContent = hat;
+                
+                // UIのアクティブ状態を更新
+                this.hatOptions.forEach(option => {
+                    if (option.dataset.hat === hat) {
+                        option.classList.add('active');
+                    } else {
+                        option.classList.remove('active');
+                    }
+                });
+                
+                console.log(`帽子を選択: ${hat}`);
+                this.updateHatMeshes();
+            }
+            
+            async processFrame() {
+                if (!this.isRunning) return;
+                
+                // 顔検出（約30fpsに制限）
+                const currentTime = performance.now();
+                if (currentTime - this.lastVideoTime >= 33) { // ~30fps
+                    this.lastVideoTime = currentTime;
+                    
+                    if (this.faceLandmarker) {
+                        await this.detectFaces(currentTime);
+                    } else {
+                        // 簡易モード：固定位置に帽子を表示（デモ用）
+                        this.faces = [{
+                            x: this.compositeCanvas.width * 0.3,
+                            y: this.compositeCanvas.height * 0.3,
+                            width: this.compositeCanvas.width * 0.4,
+                            height: this.compositeCanvas.height * 0.4
+                        }];
+                        this.faceCountElement.textContent = '1';
+                    }
+                    
+                    // 合成画像を更新
+                    this.updateCompositeTexture();
+                    
+                    // 帽子メッシュを更新
+                    this.updateHatMeshes();
+                }
+                
+                // 次のフレームを処理
+                if (this.isRunning) {
+                    requestAnimationFrame(() => this.processFrame());
+                }
+            }
+            
+            async detectFaces(currentTime) {
+                if (!this.faceLandmarker || !this.isRunning) return;
+                
+                try {
+                    // 顔検出を実行
+                    const results = this.faceLandmarker.detectForVideo(this.video, currentTime);
+                    
+                    if (results.faceLandmarks && results.faceLandmarks.length > 0) {
+                        // 検出結果を処理
+                        this.faces = results.faceLandmarks.map(landmarks => {
+                            // 顔のバウンディングボックスを計算
+                            const bounds = this.calculateFaceBounds(landmarks);
+                            return {
+                                x: bounds.x,
+                                y: bounds.y,
+                                width: bounds.width,
+                                height: bounds.height,
+                                landmarks: landmarks
+                            };
+                        });
+                        
+                        // 顔の数を更新
+                        this.faceCountElement.textContent = this.faces.length;
+                    } else {
+                        this.faces = [];
+                        this.faceCountElement.textContent = '0';
+                    }
+                } catch (error) {
+                    console.error('顔検出エラー:', error);
+                    this.faces = [];
+                }
+            }
+            
+            calculateFaceBounds(landmarks) {
+                let minX = Infinity, minY = Infinity;
+                let maxX = -Infinity, maxY = -Infinity;
+                
+                for (const landmark of landmarks) {
+                    const x = landmark.x * this.compositeCanvas.width;
+                    const y = landmark.y * this.compositeCanvas.height;
+                    
+                    minX = Math.min(minX, x);
+                    minY = Math.min(minY, y);
+                    maxX = Math.max(maxX, x);
+                    maxY = Math.max(maxY, y);
+                }
+                
+                // バウンディングボックスを少し拡大
+                const padding = 10;
+                return {
+                    x: minX - padding,
+                    y: minY - padding,
+                    width: (maxX - minX) + padding * 2,
+                    height: (maxY - minY) + padding * 2
+                };
+            }
+            
+            updateCompositeTexture() {
+                if (!this.isRunning) return;
+                
+                // 合成キャンバスをクリア
+                this.compositeCtx.clearRect(0, 0, this.compositeCanvas.width, this.compositeCanvas.height);
+                
+                // ビデオフレームを描画（ミラー反転）
+                this.compositeCtx.save();
+                this.compositeCtx.scale(-1, 1);
+                this.compositeCtx.drawImage(this.video, -this.compositeCanvas.width, 0, this.compositeCanvas.width, this.compositeCanvas.height);
+                this.compositeCtx.restore();
+                
+                // 帽子を描画（2Dキャンバス上に一時的に描画）
+                this.faces.forEach(face => {
+                    this.drawHatOnCanvas(face);
+                });
+                
+                // テクスチャを更新
+                this.compositeTexture.needsUpdate = true;
+            }
+            
+            drawHatOnCanvas(face) {
+                // 使用する帽子を決定
+                let hatImg;
+                if (this.selectedHat === 'random') {
+                    const randomHat = Math.floor(Math.random() * 3) + 1;
+                    hatImg = this.hatImages[randomHat];
+                } else {
+                    hatImg = this.hatImages[this.selectedHat];
+                }
+                
+                if (!hatImg) return;
+                
+                // 帽子のサイズを計算
+                const hatWidth = face.width * 1.5 * this.hatSize;
+                const hatHeight = (hatImg.height / hatImg.width) * hatWidth;
+                
+                // 帽子の位置を計算（顔の上部中央）
+                // キャンバスはミラー反転されているため、X座標を調整
+                const mirroredX = this.compositeCanvas.width - face.x - face.width;
+                const hatX = mirroredX + face.width / 2 - hatWidth / 2;
+                const hatY = face.y - hatHeight * 0.5;
+                
+                // 帽子を描画
+                this.compositeCtx.drawImage(hatImg, hatX, hatY, hatWidth, hatHeight);
+            }
+            
+            clearHatMeshes() {
+                // 既存の帽子メッシュを削除
+                this.hatMeshes.forEach(mesh => {
+                    this.scene.remove(mesh);
+                });
+                this.hatMeshes = [];
+            }
+            
+            updateHatMeshes() {
+                // 既存の帽子メッシュをクリア
+                this.clearHatMeshes();
+                
+                // 各顔に対応する帽子メッシュを作成
+                this.faces.forEach((face, index) => {
+                    // 使用する帽子を決定
+                    let hatImg;
+                    if (this.selectedHat === 'random') {
+                        const randomHat = Math.floor(Math.random() * 3) + 1;
+                        hatImg = this.hatImages[randomHat];
+                    } else {
+                        hatImg = this.hatImages[this.selectedHat];
+                    }
+                    
+                    if (!hatImg) return;
+                    
+                    // 帽子のテクスチャを作成
+                    const hatTexture = new THREE.CanvasTexture(hatImg);
+                    hatTexture.colorSpace = THREE.SRGBColorSpace;
+                    
+                    // 帽子のサイズを計算（球面に合わせてスケーリング）
+                    const hatWidth = 3 * this.hatSize;
+                    const hatHeight = (hatImg.height / hatImg.width) * hatWidth;
+                    
+                    // 平面ジオメトリで帽子を作成
+                    const geometry = new THREE.PlaneGeometry(hatWidth, hatHeight);
+                    const material = new THREE.MeshBasicMaterial({
+                        map: hatTexture,
+                        side: THREE.DoubleSide,
+                        transparent: true
+                    });
+                    
+                    const hatMesh = new THREE.Mesh(geometry, material);
+                    
+                    // 球面上の位置を計算（顔の位置に基づいて）
+                    // 簡易的なマッピング：顔の位置を球面座標に変換
+                    const xRatio = face.x / this.compositeCanvas.width;
+                    const yRatio = face.y / this.compositeCanvas.height;
+                    
+                    // 球面座標（カメラ映像が貼られた球面に対応）
+                    const radius = 20;
+                    const phi = Math.PI * yRatio; // 0〜π
+                    const theta = 2 * Math.PI * xRatio; // 0〜2π
+                    
+                    // 球面座標に配置
+                    hatMesh.position.setFromSphericalCoords(radius, phi, theta);
+                    
+                    // 球体の中心から外側を向くように回転
+                    hatMesh.lookAt(0, 0, 0);
+                    
+                    // 帽子を少し上に移動（顔の上部に表示）
+                    const upVector = new THREE.Vector3(0, 1, 0);
+                    hatMesh.position.add(upVector.multiplyScalar(2 * this.hatSize));
+                    
+                    this.scene.add(hatMesh);
+                    this.hatMeshes.push(hatMesh);
+                });
+            }
+            
+            takeScreenshot() {
+                if (!this.isRunning || this.faces.length === 0) {
+                    alert('カメラが起動中で、顔が検出されている状態でスクリーンショットを撮影してください。');
+                    return;
+                }
+                
+                // スクリーンショット用Canvasに現在の3Dシーンをレンダリング
+                const screenshotRenderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
+                screenshotRenderer.setSize(this.compositeCanvas.width, this.compositeCanvas.height);
+                
+                // 一時的なカメラを作成（現在のビューを維持）
+                const tempCamera = this.camera.clone();
+                
+                // レンダリング
+                screenshotRenderer.render(this.scene, tempCamera);
+                
+                // 画像としてダウンロード
+                const link = document.createElement('a');
+                link.download = `santa_hat_ball_${new Date().getTime()}.png`;
+                link.href = screenshotRenderer.domElement.toDataURL('image/png');
+                link.click();
+                
+                console.log('スクリーンショットを保存しました');
+            }
+            
+            updateUI() {
+                // ボタンの状態を更新
+                this.startBtn.disabled = this.isRunning;
+                this.stopBtn.disabled = !this.isRunning;
+                this.switchCameraBtn.disabled = !this.isRunning;
+                this.screenshotBtn.disabled = !this.isRunning;
+                
+                // ボタンのテキストを更新
+                this.startBtn.innerHTML = this.isRunning 
+                    ? '<i class="fas fa-play"></i> 実行中' 
+                    : '<i class="fas fa-play"></i> カメラ開始';
+                
+                this.stopBtn.innerHTML = this.isRunning
+                    ? '<i class="fas fa-stop"></i> カメラ停止'
+                    : '<i class="fas fa-stop"></i> 停止中';
+                
+                // カメラ切り替えボタンのテキストを更新
+                const cameraModeText = this.cameraMode === 'user' ? '前面カメラ' : '背面カメラ';
+                this.switchCameraBtn.innerHTML = this.isRunning
+                    ? `<i class="fas fa-camera-retro"></i> カメラ切替 (${cameraModeText})`
+                    : `<i class="fas fa-camera-retro"></i> カメラ切替 (${cameraModeText})`;
+            }
+        }
+        
+        // アプリケーションの起動
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOMが読み込まれました。アプリケーションを起動します。');
+            
+            // アプリケーションインスタンスを作成
+            window.app = new ChristmasHatBallCamera();
+            
+            console.log('クリスマス帽子カメラ3D球面版アプリケーションが起動しました。');
+            
+            // 開発者向け情報
+            console.log('開発者向けコマンド:');
+            console.log('- app.startCamera(): カメラを開始');
+            console.log('- app.stopCamera(): カメラを停止');
+            console.log('- app.takeScreenshot(): スクリーンショットを撮影');
+        });
+    </script>
+</body>
+</html>
